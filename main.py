@@ -2,10 +2,10 @@ import sys
 import os
 from os.path import isfile, join, isdir
 import shutil
-import itertools
 import json
 
 dir_name = sys.argv[1]
+
 
 def setFormatFilesToDir():
     with open('supportedFormats.json') as formatFile:
@@ -19,29 +19,35 @@ def setFormatFilesToDir():
             formats.append(formt)
     return formats, fileTypes, fileFormats
 
-def organizeDirectory(dir_name):
+
+def organizeDirectory(dir_name: str) -> str:
+    """Gets formats from json file, iterate over the directory,
+    and moves files.
+
+    @type dir_name: str
+    @param dir_name: The directry location you want to sort.
+    @returns: None
+    """
     formats, fileTypes, fileFormats = setFormatFilesToDir()
-    names = []
-    extensions = []
     destination = ""
-    fileLists = [filen for filen in os.listdir(dir_name) if isfile(join(dir_name, filen))]
-    print(fileLists)
-    
-    for file_name in fileLists:
-        filebreaker = file_name.split('.')
-        filename, formatfile = filebreaker[0], filebreaker[-1]
+    fileLists = [f for f in os.listdir(dir_name) if isfile(join(dir_name, f))]
+    for fname in fileLists:
+        filebreaker = fname.split('.')
+        formatfile = filebreaker[-1]
+        print(formatfile)
         for formats in fileFormats:
             if formatfile in formats:
                 folderName = fileTypes[fileFormats.index(formats)]
-                if isdir(folderName) == True:
-                    continue                     
+                destination = f'{dir_name}/{folderName}'
+                src_path = dir_name + '/' + fname
+                print(isdir(src_path))
+                print(src_path)
+                if isdir(f'{dir_name}/{folderName}') is True:
+                    print("Directory already exists.")
                 else:
                     os.mkdir(f'{dir_name}/{folderName}')
-                    # destination=f'{dir_name}/{folderName}'
-                    # print(file_name + destination)
-                    # try:
-                    #     shutil.move(file_name, destination)
-                    # except:
-                    #     continue
+                shutil.move(src_path, destination)
+
+
 if __name__ == '__main__':
     organizeDirectory(dir_name)
